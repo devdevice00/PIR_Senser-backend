@@ -11,8 +11,9 @@ const BREVO_API_KEY = process.env.BREVO_API_KEY;
 app.post("/send-email", async (req, res) => {
   const { email, deviceName } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ error: "No email" });
+  // ✅ ตรวจข้อมูล
+  if (!email || !Array.isArray(email) || email.length === 0) {
+    return res.status(400).json({ error: "Invalid email list" });
   }
 
   try {
@@ -25,25 +26,26 @@ app.post("/send-email", async (req, res) => {
       body: JSON.stringify({
         sender: {
           name: "Pir Sensor",
-          email: "no-reply@pirsenser.com"
+          email: "no-reply@pirsenser.com",
         },
-        to: [{ email }],
+        to: email.map(e => ({ email: e })), // 🔥 จุดแก้สำคัญ
         subject: "เข้าสู่ระบบสำเร็จ",
         htmlContent: `
           <h2>เข้าสู่ระบบแล้ว 🎉</h2>
-          <p>อุปกรณ์: ${deviceName}</p>
+          <p>อุปกรณ์: ${deviceName || "-"}</p>
         `,
       }),
     });
 
     if (!response.ok) {
       const text = await response.text();
+      console.error("Brevo error:", text);
       throw new Error(text);
     }
 
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error("Send email failed:", err.message);
     res.status(500).json({ error: "Send email failed" });
   }
 });
