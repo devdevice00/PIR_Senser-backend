@@ -26,7 +26,7 @@ app.post("/send-email", async (req, res) => {
       body: JSON.stringify({
         sender: {
           name: "Pir Sensor",
-          email: "no-reply@pirsenser.com",
+          email: "senserdevice@gmail.com",
         },
         to: email.map(e => ({ email: e })), // 🔥 จุดแก้สำคัญ
         subject: "เข้าสู่ระบบสำเร็จ",
